@@ -11,7 +11,7 @@ int main() {
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
 
-	unsigned int its = 2000;
+	unsigned int its = 200;
 	unsigned int multisample = 12;
 	bool output = true;
 
@@ -20,9 +20,9 @@ int main() {
 
 # pragma region StateComparison
 # pragma region OutputAllStatesUCB1
-	// auto params = cLogEquidistant(1e-5, 1, 16);
-	// HPStatistic stat =  allStatesUCTStatistic(params, its, multisample, n, d);
-	// stat.output_to_file("outputs/tmp.txt");
+	auto params = cLogEquidistant(1e-5, 1, 16);
+	HPStatistic stat =  allStatesUCTStatistic(params, its, multisample, n, d);
+	stat.output_to_file("outputs/tmp.txt");
 # pragma endregion OutputAllStatesUCB1
 
 # pragma region GridvsImproved // THis is not interesting
@@ -196,18 +196,18 @@ int main() {
 
 
 # pragma region RestartTest
-	// Generate Faure points
-	FaurePointSet pointSet(d, n);
-	pointSet.generate();
-	// Gridstate
-	Grid grid(pointSet);
-	SampleGridState gridState(&grid);
-	std::mt19937 mt(2);
-	UCBHyperparameters params(0.1);
-	typedef TreeMCTSUCB1Avg<SampleGridState, Action> UCBClass;
-	UCBClass tree = treeSearchwithRestarts<SampleGridState, UCBClass>(&pointSet,gridState, params, its);
-	// Print the max value
-	std::cout << tree.maxValue() << std::endl;
+	// // Generate Faure points
+	// FaurePointSet pointSet(d, n);
+	// pointSet.generate();
+	// // Gridstate
+	// Grid grid(pointSet);
+	// SampleGridState gridState(&grid);
+	// std::mt19937 mt(2);
+	// UCBHyperparameters params(0.1);
+	// typedef TreeMCTSUCB1Avg<SampleGridState, Action> UCBClass;
+	// UCBClass tree = treeSearchwithRestarts<SampleGridState, UCBClass>(&pointSet,gridState, params, its);
+	// // Print the max value
+	// std::cout << tree.maxValue() << std::endl;
 # pragma endregion RestartTest
 
 
