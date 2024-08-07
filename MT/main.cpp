@@ -1,0 +1,273 @@
+#include "mcts.h"
+#include "hyperparams.h"
+#include "point_set.h"
+#include <chrono>
+#include <fstream> // Include the necessary header for std::ofstream
+
+int main() {
+	const unsigned n = 121; // Number of points
+	const unsigned d = 8;   // Dimension of the points
+	// Target value:  0.1702
+	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
+	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
+
+	unsigned int its = 2000;
+	unsigned int multisample = 12;
+	bool output = true;
+
+	// Start timer
+	auto start = std::chrono::high_resolution_clock::now();
+
+# pragma region StateComparison
+# pragma region OutputAllStatesUCB1
+	// auto params = cLogEquidistant(1e-5, 1, 16);
+	// HPStatistic stat =  allStatesUCTStatistic(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion OutputAllStatesUCB1
+
+# pragma region GridvsImproved // THis is not interesting
+	// auto params = cLogEquidistant(0.000464159, 1e-2, 11);
+	// HPStatistic stat = GridvsImprovedUCTStatistic(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion GridvsImproved
+
+# pragma region TimelineImproved
+	// UCBHyperparameters params(4.64159e-05);
+	// its = 10000;
+	// unsigned int steps = 100;
+	// TimeLineStatistic stat = ImprovedSplitTimeline(params, its, steps, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion TimelineImproved
+
+# pragma region TimelineExploitation
+	// UCBHyperparameters params(0.0001);
+	// its = 10000;
+	// unsigned int steps = 100;
+	// TimeLineStatistic stat = ImprovedSplitTimeline(params, its, steps, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion TimelineExploitation
+
+# pragma region TimelineExploration
+	// UCBHyperparameters params(0.1);
+	// its = 10000;
+	// unsigned int steps = 100;
+	// TimeLineStatistic stat = ImprovedSplitTimeline(params, its, steps, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion TimelineExploration
+
+# pragma region TimelineLong
+	// UCBHyperparameters params(0.001);
+	// its = 100000;
+	// unsigned int steps = 100;
+	// TimeLineStatistic stat = ImprovedSplitTimeline(params, its, steps, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion TimelineLong
+
+# pragma region ImprovedPointOutput
+	// // // Generate Faure points
+	// FaurePointSet pointSet(d, n);
+	// pointSet.generate();
+	// Grid grid(pointSet);
+	// RightDeterministicGridState gridState(&grid);
+	// std::mt19937 mt(1);
+	// UCBHyperparameters params(0.0464159);
+	// TreeMCTSUCB1Avg<RightDeterministicGridState, Action> mctsgrid(&pointSet, gridState, its * d * 3, mt, params);
+	// mctsgrid.point_output = true;
+	// mctsgrid.run(its);
+	// // Print the max value
+	// std::cout << mctsgrid.maxValue() << std::endl;
+	// auto points_and_values = mctsgrid.points_and_values;
+	// // Output to file
+	// pointsAndValueToFile("outputs/debugPointOutput.txt", points_and_values);
+# pragma endregion ImprovedPointOutput
+
+# pragma region BigPointComparison
+	// std::pair<unsigned int, unsigned int> nd = 
+	// 	{ 
+	// 		// 343, 7
+	// 		// 121, 11
+	// 		529, 20
+	// 		// 1500, 20
+	// 	};
+	// its = 10000;
+	// auto params = cLogEquidistant(1e-7, 1e-2, 16);
+	// HPStatistic stat =  allStatesUCTStatistic(params, its, multisample, nd.first, nd.second);
+	// stat.output_to_file("outputs/ucb1_" + std::to_string(nd.first) + "_" + std::to_string(nd.second) + "_" + std::to_string(its) + ".txt");
+	// // Print n and d
+	// std::cout << "n: " << nd.first << ", d: " << nd.second << " done" << std::endl;
+# pragma endregion BigPointComparison
+
+
+
+
+
+# pragma region CustomDiscrepancy
+	// unsigned int dd = 11;
+	// unsigned int nn = 121;
+	// FaurePointSet pointSet(d, n);
+	// pointSet.generate();
+	// Grid grid(pointSet);
+	// std::vector<double> point = {
+    //     0.46938775510204078,
+    //     0.98542274052478129,
+    //     0.98250728862973757,
+    //     0.98542274052478129,
+    //     0.98250728862973757,
+    //     0.98542274052478129,
+    //     0.98542274052478129,
+    //     0.46938775510204078,
+    //     0.98542274052478129,
+    //     0.98250728862973757,
+    //     0.98542274052478129
+    // };
+	// // calculate the discrepancy of the point
+	// double discrepancy = pointSet.discrepancy_snapped(point, grid);
+	// std::cout << "Discrepancy: " << discrepancy << std::endl;
+	// // Calculate point up snapped point
+	// std::vector<double> up_snapped_point(d);
+    // for (unsigned int i = 0; i < d; i++) {
+    //     auto it = std::upper_bound(grid.grid[i].begin(), grid.grid[i].end(), point[i]);
+    //     if (it == grid.grid[i].end()) {
+    //         up_snapped_point[i] = 1;
+    //     }
+    //     else {
+    //         up_snapped_point[i] = *it;
+    //     }
+    // }
+	// std::cout << "Up snapped point: " << std::endl;
+	// for (auto& p : up_snapped_point) {
+	// 	std::cout << p << ", ";
+	// }
+	// std::cout << std::endl;
+	// // Discrepancy of up snapped point
+	// double discrepancy_up = pointSet.discrepancy(up_snapped_point);
+	// std::cout << "Discrepancy up: " << discrepancy_up << std::endl;
+
+	// // Calculate point down snapped point
+	// std::vector<double> down_snapped_point(d);
+	// for (unsigned int i = 0; i < d; i++) {
+	// 	auto it = std::lower_bound(grid.grid[i].begin(), grid.grid[i].end(), point[i]);
+	// 	if (it == grid.grid[i].begin()) {
+	// 		down_snapped_point[i] = 0;
+	// 	}
+	// 	else {
+	// 		down_snapped_point[i] = *(--it);
+	// 	}
+	// }
+	// std::cout << "Down snapped point: " << std::endl;
+	// for (auto& p : down_snapped_point) {
+	// 	std::cout << p << ", ";
+	// }
+	// std::cout << std::endl;
+	// // Discrepancy of down snapped point
+	// double discrepancy_down = pointSet.discrepancy_bar(down_snapped_point);
+	// std::cout << "Discrepancy down: " << discrepancy_down << std::endl;
+
+
+	// // Print first coordinate of grid
+	// std::cout << "First coordinate of grid: " << std::endl;
+	// for (auto& p : grid.grid[0]) {
+	// 	std::cout << p << ", ";
+	// }
+	// std::cout << std::endl;
+
+
+# pragma endregion CustomDiscrepancy
+
+
+
+# pragma endregion StateComparison
+
+# pragma region PolicyComparison
+
+# pragma region GridStatePolicyComparison
+	// auto params = cLogEquidistant(1e-5, 1, 16);
+	// HPStatistic stat =  GridPolicyCompare(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion GridStatePolicyComparison
+
+# pragma region ImprovedStatePolicyComparison
+	// auto params = cLogEquidistant(1e-5, 1, 6);
+	// HPStatistic stat =  ImprovedSplitPolicyCompare(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion ImprovedPolicyComparison
+
+# pragma endregion PolicyComparison
+
+
+# pragma region RestartTest
+	// Generate Faure points
+	FaurePointSet pointSet(d, n);
+	pointSet.generate();
+	// Gridstate
+	Grid grid(pointSet);
+	SampleGridState gridState(&grid);
+	std::mt19937 mt(2);
+	UCBHyperparameters params(0.1);
+	typedef TreeMCTSUCB1Avg<SampleGridState, Action> UCBClass;
+	UCBClass tree = treeSearchwithRestarts<SampleGridState, UCBClass>(&pointSet,gridState, params, its);
+	// Print the max value
+	std::cout << tree.maxValue() << std::endl;
+# pragma endregion RestartTest
+
+
+
+
+
+
+
+# pragma region Experimenting
+
+# pragma region HPSearch
+	// auto params = cLogEquidistant(0.00001, 1, 10);
+	// HPStatistic stat = gridStateAllStatistic(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion HPSearch
+
+# pragma region HPSearchOne
+	// auto params = cLogEquidistant(1e-4, 1e-1, 10);
+	// HPStatistic stat = treeOneSearchGrid<GridStateImprovedSplit, TreeMCTSGreedyBayesImprovedSplitGrid>(params, its, multisample, n, d, "GreedyAvgSplit");
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion HPSearchOne
+
+#pragma region PointOutput
+	//// Generate Faure points
+	//FaurePointSet pointSet(d, n);
+	//pointSet.generate();
+	//// Gridstate
+	//Grid grid(pointSet);
+	//GridState gridState(&grid);
+	//std::mt19937 mt(2);
+	//UCBHyperparameters params(0.1);
+	//TreeMCTSMyMaxGrid mctsgrid(&pointSet, gridState, its * d * 3, mt, params);
+	//mctsgrid.point_output = true;
+	//mctsgrid.run(its);
+	//auto points_and_values = mctsgrid.points_and_values;
+	//// Output to file
+	//pointsAndValueToFile("../outputs/pointOutput.txt", points_and_values);
+#pragma endregion PointOutput
+
+	//Grid grid(pointSet);
+	//SampleGridState gridState(&grid);
+	//std::mt19937 mt(3);
+	//UCBHyperparameters params(0.1);
+	//TreeMCTSBayesGrid mctsgrid(&pointSet, gridState, its * d * 3, mt, params);
+	//mctsgrid.run(its);
+	//std::cout << mctsgrid.maxValue() << std::endl;
+
+# pragma endregion Experimenting
+	
+	
+	// End timer and print time
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = end - start;
+	// Add at the end of tmp.txt
+	std::ofstream file("outputs/tmp.txt", std::ios_base::app);
+	if (file.is_open()) { // Check if the file is successfully opened
+		file << "Time: " << elapsed.count() << "s" << std::endl;
+		file.close();
+	} else {
+		std::cerr << "Failed to open the file." << std::endl; // Print an error message if the file failed to open
+	}
+	return 0;
+}
