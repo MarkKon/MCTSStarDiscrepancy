@@ -11,8 +11,8 @@ int main() {
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
 
-	unsigned int its = 200;
-	unsigned int multisample = 12;
+	unsigned int its = 100000;
+	unsigned int multisample = 100;
 	bool output = true;
 
 	// Start timer
