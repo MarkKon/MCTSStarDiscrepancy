@@ -181,6 +181,27 @@ public:
     };
 };
 
+class GridStateExact : public GridState {
+    // Inherit everything but overrride the actions function to only split in one dimension
+    public:
+        GridStateExact() : GridState() {};
+        GridStateExact(Grid* g) : GridState(g) {};
+        std::vector<Action> actions() {
+            std::vector<Action> actions;
+            // Only split in dimension this.depth% d
+            unsigned int d = start.size();
+            unsigned int dim = depth % d;
+            if (end[dim] - start[dim] > 1) {
+                actions.push_back(Action(dim, 0));
+                actions.push_back(Action(dim, 1));
+            }
+            return actions;
+        };
+        // Automatic conversion to GridStateExact from GridState
+        GridStateExact(const GridState& s) : GridState(s) {};
+
+};
+
 class GridStateImprovedSample : public GridState {
     // Inherit everything from GridState but override the sample function
     public:
@@ -248,6 +269,27 @@ class GridStateImprovedSplit : public GridState {
 		GridStateImprovedSplit(const GridState& s) : GridState(s) {};
 
 };
+
+class GridStateExactAndImprovedSplit : public GridStateImprovedSplit {
+    // inherit everything from ImprovedSplit but take the actions function to only split in one dimension
+    public:
+        GridStateExactAndImprovedSplit() : GridStateImprovedSplit() {};
+        GridStateExactAndImprovedSplit(Grid* g) : GridStateImprovedSplit(g) {};
+        std::vector<Action> actions() {
+            std::vector<Action> actions;
+            // Only split in dimension this.depth% d
+            unsigned int d = start.size();
+            unsigned int dim = depth % d;
+            if (end[dim] - start[dim] > 1) {
+                actions.push_back(Action(dim, 0));
+                actions.push_back(Action(dim, 1));
+            }
+            return actions;
+        };
+        // Automatic conversion to GridStateExact from GridState
+        GridStateExactAndImprovedSplit(const GridState& s) : GridStateImprovedSplit(s) {};
+};
+
 
 class SampleGridState : public GridState {
     // inherit everything from GridState but override the sample function

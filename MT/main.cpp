@@ -20,9 +20,9 @@ int main() {
 
 # pragma region StateComparison
 # pragma region OutputAllStatesUCB1
-	auto params = cLogEquidistant(1e-5, 1, 16);
+	auto params = cLogEquidistant(1e-5, 10, 19);
 	HPStatistic stat =  allStatesUCTStatistic(params, its, multisample, n, d);
-	stat.output_to_file("outputs/tmp.txt");
+	stat.output_to_file("outputs/all_states_100_000_121_8.txt");
 # pragma endregion OutputAllStatesUCB1
 
 # pragma region GridvsImproved // THis is not interesting

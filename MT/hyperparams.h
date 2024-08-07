@@ -334,6 +334,12 @@ HPStatistic allStatesUCTStatistic(std::vector<UCBHyperparameters> params, unsign
 			treeSingleSearchGrid<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(p, its, multiplicity, n, d, "Grid State Space")
 		);
 		std::cout << "Grid State Space done" << std::endl;
+		// Add GridStateExact
+		statistic.addSingle(
+            treeSingleSearchGrid<GridStateExact, TreeMCTSUCB1Avg<GridStateExact, Action>>(p, its, multiplicity , n, d, "Grid State Exact")
+		);
+		std::cout << "Grid State Exact done" << std::endl;
+        
 		// Add Deterministic State Space
 		statistic.addSingle(
 			treeSingleSearchGrid<RightDeterministicGridState, TreeMCTSUCB1Avg<RightDeterministicGridState, Action>>(p, its, 1, n, d, "Deterministic State Space")
@@ -344,11 +350,11 @@ HPStatistic allStatesUCTStatistic(std::vector<UCBHyperparameters> params, unsign
 			treeSingleSearchGrid<GridStateImprovedSplit, TreeMCTSUCB1Avg<GridStateImprovedSplit, Action>>(p, its, multiplicity, n, d, "Improved Split State Space")
 		);
 		std::cout << "Improved Split State Space done" << std::endl;
-		// Add Smooth State Space
+		// Add Improved Exact State Space
 		statistic.addSingle(
-			treeSingleSearchGrid<GridStateSmoothImprovedSplit, TreeMCTSUCB1Avg<GridStateSmoothImprovedSplit, Action>>(p, its, multiplicity, n, d, "Smooth State Space")
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "Improved Exact Space")
 		);
-		std::cout << "Smooth State Space done" << std::endl;
+		std::cout << "Improved Exact Space done" << std::endl;
 		// Add Point State Space
 		statistic.addSingle(
 			treeSingleSearchFixedPoint<FixPointGridState, TreeMCTSUCB1Avg<FixPointGridState, Action>>(p, its, multiplicity, n, d, "Point State Space")
