@@ -5,7 +5,7 @@
 #include <fstream> // Include the necessary header for std::ofstream
 
 int main() {
-	const unsigned n = 50; // Number of points
+	const unsigned n = 500; // Number of points
 	const unsigned d = 10;   // Dimension of the points
 	// Target value:  0.1702
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
@@ -22,7 +22,7 @@ int main() {
 # pragma region OutputAllStatesUCB1
 	auto params = cLogEquidistant(1e-5, 10, 19);
 	HPStatistic stat =  allStatesUCTStatistic(params, its, multisample, n, d);
-	stat.output_to_file("outputs/all_states_100_000_50_10.txt");
+	stat.output_to_file("outputs/all_states_100_000_500_10.txt");
 # pragma endregion OutputAllStatesUCB1
 
 # pragma region GridvsImproved // THis is not interesting
