@@ -135,3 +135,25 @@ void FaurePointSet::generate() {
 		this->points.push_back(point);
 	}
 }
+
+void HaltonPointSet::generate() {
+    double* halton = halton_sequence(1, n, d);
+    for (unsigned int i = 0; i < n; i++) {
+        std::vector<double> point;
+        for (unsigned int j = 0; j < d; j++) {
+            point.push_back(halton[i*d + j]);
+        }
+        this->points.push_back(point);
+    }
+}
+
+void SobolPointSet::generate() {
+    double* sobol = i8_sobol_generate(d, n, 1);
+    for (unsigned int i = 0; i < n; i++) {
+        std::vector<double> point;
+        for (unsigned int j = 0; j < d; j++) {
+            point.push_back(sobol[i*d + j]);
+        }
+        this->points.push_back(point);
+    }
+}
