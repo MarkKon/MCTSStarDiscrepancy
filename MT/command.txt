@@ -1,0 +1,1 @@
+g++ -fdiagnostics-color=always -O2 -march=native -fopenmp MT/main.cpp MT/point_set.cpp MT/faure.cpp MT/halton.cpp MT/sobol.cpp -o MT/main.exe
