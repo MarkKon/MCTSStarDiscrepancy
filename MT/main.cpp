@@ -32,11 +32,11 @@ int main() {
 # pragma endregion GridvsImproved
 
 # pragma region TimelineImproved
-	UCBHyperparameters params(0.0001);
+	UCBHyperparameters params(0.1);
 	its = 1000000;
 	unsigned int steps = 100;
 	TimeLineStatistic stat = ImprovedSplitTimeline(params, its, steps, multisample, n, d);
-	stat.output_to_file("outputs/timeline_improved_0_0001.txt");
+	stat.output_to_file("outputs/timeline_improved_0_1.txt");
 # pragma endregion TimelineImproved
 
 # pragma region TimelineExploitation
