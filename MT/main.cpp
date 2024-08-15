@@ -5,8 +5,8 @@
 #include <fstream> // Include the necessary header for std::ofstream
 
 int main() {
-	const unsigned n = 121; // Number of points
-	const unsigned d = 8;   // Dimension of the points
+	const unsigned n = 1500; // Number of points
+	const unsigned d = 20;   // Dimension of the points
 	// Target value:  0.1702
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
@@ -36,7 +36,7 @@ int main() {
 # pragma region PolicyCompare
 	auto params = cLogEquidistant(1e-5, 10, 19);
 	HPStatistic stat =  PolicyCompare(params, its, multisample, n, d);
-	stat.output_to_file("outputs/policy_121_8.txt");
+	stat.output_to_file("outputs/policy_1500_20.txt");
 # pragma endregion PolicyCompare
 
 
