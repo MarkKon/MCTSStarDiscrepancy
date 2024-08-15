@@ -11,7 +11,7 @@ int main() {
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
 
-	unsigned int its = 1000;
+	unsigned int its = 100000;
 	unsigned int multisample = 100;
 	bool output = true;
 
@@ -33,11 +33,11 @@ int main() {
 # pragma endregion OutputAllStatesSobol
 
 
-# pragma region OutputAllStatesSobol
+# pragma region PolicyCompare
 	auto params = cLogEquidistant(1e-5, 10, 19);
 	HPStatistic stat =  PolicyCompare(params, its, multisample, n, d);
-	stat.output_to_file("outputs/tmp.txt");
-# pragma endregion OutputAllStatesSobol
+	stat.output_to_file("outputs/policy_121_8.txt");
+# pragma endregion PolicyCompare
 
 
 # pragma region GridvsImproved // THis is not interesting
