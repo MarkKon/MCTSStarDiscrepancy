@@ -153,6 +153,30 @@ SingleHPStatistic treeSingleSearchGrid(UCBHyperparameters params, unsigned int i
 }
 
 template<class State, class UCBClass>
+SingleHPStatistic treeSingleSearchGridSobol(UCBHyperparameters params, unsigned int its, unsigned int multiplicity,
+	unsigned int point_n, unsigned int point_d,	std::string name) {
+	SingleHPStatistic statistic(name, params);
+	SobolPointSet pointSet(point_d, point_n);
+	pointSet.generate();
+#pragma omp parallel shared(statistic, pointSet)
+	{
+#pragma omp for
+		// Iterate over the muliplicity
+		for (int i = 0; i < multiplicity; i++) {
+			Grid grid(pointSet);
+			State gridState(&grid);
+			std::mt19937 mt(i);
+			UCBClass mctsgrid(&pointSet, gridState, its * point_d * 3, mt, params);
+			mctsgrid.run(its);
+#pragma omp critical
+			statistic.addValue(mctsgrid.maxValue());
+		}
+	}
+	return statistic;
+}
+
+
+template<class State, class UCBClass>
 SingleHPStatistic treeSingleSearchFixedPoint(UCBHyperparameters params, unsigned int its, unsigned int multiplicity,
 	unsigned int point_n, unsigned int point_d,	std::string name) {
 	SingleHPStatistic statistic(name, params);
@@ -322,7 +346,6 @@ HPStatistic smoothGridStateAllStatistic(std::vector<UCBHyperparameters> params, 
 	return statistic;
 	};
 
-
 HPStatistic allStatesUCTStatistic(std::vector<UCBHyperparameters> params, unsigned int its,
 	unsigned int multiplicity, unsigned int n, unsigned int d)
 {
@@ -331,33 +354,33 @@ HPStatistic allStatesUCTStatistic(std::vector<UCBHyperparameters> params, unsign
 		// All states as in the thesis : Naive State Space, Grid State Space, Deterministic State Space, Improved Split State Space, Smooth State Space, Point State Space
 		// Add Grid State Space
 		statistic.addSingle(
-			treeSingleSearchGrid<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(p, its, multiplicity, n, d, "Grid State Space")
+			treeSingleSearchGrid<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(p, its, multiplicity, n, d, "G")
 		);
 		std::cout << "Grid State Space done" << std::endl;
 		// Add GridStateExact
 		statistic.addSingle(
-            treeSingleSearchGrid<GridStateExact, TreeMCTSUCB1Avg<GridStateExact, Action>>(p, its, multiplicity , n, d, "Grid State Exact")
+            treeSingleSearchGrid<GridStateExact, TreeMCTSUCB1Avg<GridStateExact, Action>>(p, its, multiplicity , n, d, "DisG")
 		);
 		std::cout << "Grid State Exact done" << std::endl;
         
 		// Add Deterministic State Space
 		statistic.addSingle(
-			treeSingleSearchGrid<RightDeterministicGridState, TreeMCTSUCB1Avg<RightDeterministicGridState, Action>>(p, its, 1, n, d, "Deterministic State Space")
+			treeSingleSearchGrid<RightDeterministicGridState, TreeMCTSUCB1Avg<RightDeterministicGridState, Action>>(p, its, 1, n, d, "Det")
 		);
 		std::cout << "Deterministic State Space done" << std::endl;
 		//Add Improved Split State Space
 		statistic.addSingle(
-			treeSingleSearchGrid<GridStateImprovedSplit, TreeMCTSUCB1Avg<GridStateImprovedSplit, Action>>(p, its, multiplicity, n, d, "Improved Split State Space")
+			treeSingleSearchGrid<GridStateImprovedSplit, TreeMCTSUCB1Avg<GridStateImprovedSplit, Action>>(p, its, multiplicity, n, d, "IS")
 		);
 		std::cout << "Improved Split State Space done" << std::endl;
 		// Add Improved Exact State Space
 		statistic.addSingle(
-			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "Improved Exact Space")
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG")
 		);
 		std::cout << "Improved Exact Space done" << std::endl;
 		// Add Point State Space
 		statistic.addSingle(
-			treeSingleSearchFixedPoint<FixPointGridState, TreeMCTSUCB1Avg<FixPointGridState, Action>>(p, its, multiplicity, n, d, "Point State Space")
+			treeSingleSearchFixedPoint<FixPointGridState, TreeMCTSUCB1Avg<FixPointGridState, Action>>(p, its, multiplicity, n, d, "Pt")
 		);
 		std::cout << "Point State Space done" << std::endl;
 	}
@@ -365,7 +388,47 @@ HPStatistic allStatesUCTStatistic(std::vector<UCBHyperparameters> params, unsign
 
 };
 
+HPStatistic allStatesUCTStatisticSobol(std::vector<UCBHyperparameters> params, unsigned int its,
+	unsigned int multiplicity, unsigned int n, unsigned int d)
+{
+	HPStatistic statistic;
+	for (auto& p : params) {
+		// // All states as in the thesis : Naive State Space, Grid State Space, Deterministic State Space, Improved Split State Space, Smooth State Space, Point State Space
+		// // Add Grid State Space
+		// statistic.addSingle(
+		// 	treeSingleSearchGridSobol<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(p, its, multiplicity, n, d, "G")
+		// );
+		// std::cout << "Grid State Space done" << std::endl;
+		// Add GridStateExact
+		statistic.addSingle(
+            treeSingleSearchGridSobol<GridStateExact, TreeMCTSUCB1Avg<GridStateExact, Action>>(p, its, multiplicity , n, d, "DisG")
+		);
+		std::cout << "Grid State Exact done" << std::endl;
+        
+		// // Add Deterministic State Space
+		// statistic.addSingle(
+		// 	treeSingleSearchGridSobol<RightDeterministicGridState, TreeMCTSUCB1Avg<RightDeterministicGridState, Action>>(p, its, 1, n, d, "Det")
+		// );
+		// std::cout << "Deterministic State Space done" << std::endl;
+		// //Add Improved Split State Space
+		// statistic.addSingle(
+		// 	treeSingleSearchGridSobol<GridStateImprovedSplit, TreeMCTSUCB1Avg<GridStateImprovedSplit, Action>>(p, its, multiplicity, n, d, "IS")
+		// );
+		// std::cout << "Improved Split State Space done" << std::endl;
+		// Add Improved Exact State Space
+		statistic.addSingle(
+			treeSingleSearchGridSobol<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG")
+		);
+		std::cout << "Improved Exact Space done" << std::endl;
+		// // Add Point State Space
+		// statistic.addSingle(
+		// 	treeSingleSearchFixedPoint<FixPointGridState, TreeMCTSUCB1Avg<FixPointGridState, Action>>(p, its, multiplicity, n, d, "Pt")
+		// );
+		// std::cout << "Point State Space done" << std::endl;
+	}
+	return statistic;
 
+};
 
 HPStatistic GridvsImprovedUCTStatistic(std::vector<UCBHyperparameters> params, unsigned int its,
 	unsigned int multiplicity, unsigned int n, unsigned int d)
@@ -412,6 +475,99 @@ TimeLineStatistic ImprovedSplitTimeline(UCBHyperparameters params, unsigned int 
 	}
 	return statistic;
 };
+
+TimeLineStatistic GridTimeline(UCBHyperparameters params, unsigned int its, unsigned int its_step, unsigned int multiplicity, unsigned int n, unsigned int d) {
+	std::vector<int> iterations;
+	for (int i = its_step; i <= its; i += its_step) {
+		iterations.push_back(i);
+	}
+	TimeLineStatistic statistic(iterations, multiplicity);
+	FaurePointSet pointSet(d, n);
+	pointSet.generate();
+	# pragma omp parallel shared(statistic, pointSet)
+	{
+	# pragma omp for
+		for (int i = 0; i < multiplicity; i++) {
+			SingleTimeLineStatistic single_stat;
+			Grid grid(pointSet);
+			GridState gridState(&grid);
+			std::mt19937 mt(i);
+			TreeMCTSUCB1Avg<GridState, Action> mctsgrid(&pointSet, gridState, its * d * 3, mt, params);
+			for (int j = 0; j < iterations.size(); j++) {
+				mctsgrid.run(its_step);
+				single_stat.addValue(iterations[j], mctsgrid.maxValue());
+			}
+	# pragma omp critical
+			statistic.addSingle(single_stat);
+		}
+	}
+	return statistic;
+};
+
+HPStatistic PolicyCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
+	HPStatistic statistic;
+	for (auto& p : params) {
+		// All policies
+		// Add Grid State Space
+		statistic.addSingle(
+			treeSingleSearchGrid<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(p, its, multiplicity, n, d, "G/UCT")
+		);
+		std::cout << "G/UCT done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<SampleGridState, TreeMCTSUCBTuned<SampleGridState, Action>>(p, its, multiplicity, n, d, "G/Tun")
+		);
+		std::cout << "G/Tun done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<SampleGridState, TreeMCTSSinglePlayer<SampleGridState, Action>>(p, its, multiplicity, n, d, "G/SP")
+		);
+		std::cout << "G/SP done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<SampleGridState, TreeMCTSUCBDepth<SampleGridState, Action>>(p, its, multiplicity, n, d, "G/Dep")
+		);
+		std::cout << "G/Dep done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<SampleGridState, TreeMCTSGreedyUCB1Avg<SampleGridState, Action>>(p, its, multiplicity, n, d, "G/Gre")
+		);
+		std::cout << "G/Gre done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<SampleGridState, TreeMCTSSqrtUCT<SampleGridState, Action>>(p, its, multiplicity, n, d, "G/Sqrt")
+		);
+		std::cout << "G/Sqrt done" << std::endl;
+	}
+	for (auto& p : params) {
+		// All policies
+		// Add Grid State Space
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG/UCT")
+		);
+		std::cout << "ISDisG/UCT done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCBTuned<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG/Tun")
+		);
+		std::cout << "ISDisG/Tun done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSSinglePlayer<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG/SP")
+		);
+		std::cout << "ISDisG/SP done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCBDepth<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG/Dep")
+		);
+		std::cout << "ISDisG/Dep done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSGreedyUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG/Gre")
+		);
+		std::cout << "ISDisG/Gre done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSSqrtUCT<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG/Sqrt")
+		);
+		std::cout << "ISDisG/Sqrt done" << std::endl;
+	}
+
+	return statistic;
+
+}
+
+
 
 HPStatistic GridPolicyCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
 	HPStatistic statistic;

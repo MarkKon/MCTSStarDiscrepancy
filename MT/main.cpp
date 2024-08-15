@@ -11,7 +11,7 @@ int main() {
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
 
-	unsigned int its = 100000;
+	unsigned int its = 1000;
 	unsigned int multisample = 100;
 	bool output = true;
 
@@ -25,6 +25,21 @@ int main() {
 	// stat.output_to_file("outputs/all_states_100_000_500_10.txt");
 # pragma endregion OutputAllStatesUCB1
 
+
+# pragma region OutputAllStatesSobol
+	// auto params = cLogEquidistant(1e-5, 10, 6);
+	// HPStatistic stat =  allStatesUCTStatisticSobol(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion OutputAllStatesSobol
+
+
+# pragma region OutputAllStatesSobol
+	auto params = cLogEquidistant(1e-5, 10, 19);
+	HPStatistic stat =  PolicyCompare(params, its, multisample, n, d);
+	stat.output_to_file("outputs/tmp.txt");
+# pragma endregion OutputAllStatesSobol
+
+
 # pragma region GridvsImproved // THis is not interesting
 	// auto params = cLogEquidistant(0.000464159, 1e-2, 11);
 	// HPStatistic stat = GridvsImprovedUCTStatistic(params, its, multisample, n, d);
@@ -32,11 +47,11 @@ int main() {
 # pragma endregion GridvsImproved
 
 # pragma region TimelineImproved
-	UCBHyperparameters params(0.0001);
-	its = 1000000;
-	unsigned int steps = 100;
-	TimeLineStatistic stat = ImprovedSplitTimeline(params, its, steps, multisample, n, d);
-	stat.output_to_file("outputs/timeline_improved_0_0001.txt");
+	// UCBHyperparameters params(0.0001);
+	// its = 1000000;
+	// unsigned int steps = 100;
+	// TimeLineStatistic stat = ImprovedSplitTimeline(params, its, steps, multisample, n, d);
+	// stat.output_to_file("outputs/timeline_improved_0_0001.txt");
 # pragma endregion TimelineImproved
 
 # pragma region TimelineExploitation
