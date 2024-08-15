@@ -10,6 +10,8 @@
 #include <fstream>
 
 #include "faure.hpp"
+#include "halton.hpp"
+#include "sobol.hpp"
 
 class Grid;
 
@@ -119,5 +121,18 @@ public:
     FaurePointSet(unsigned int d, unsigned int n) : PointSet(d, n) {};
 	void generate();
 };
+
+class HaltonPointSet : public PointSet {
+public:
+    HaltonPointSet(unsigned int d, unsigned int n) : PointSet(d, n) {};
+    void generate();
+};
+
+class SobolPointSet : public PointSet {
+public:
+    SobolPointSet(unsigned int d, unsigned int n) : PointSet(d, n) {};
+    void generate();
+};
+
 
 #endif // POINT_SET_HPP
