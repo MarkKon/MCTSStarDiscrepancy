@@ -94,3 +94,5 @@ Time: 2244.94s
 Time: 2667.35s
 Time: 2461.21s
 Time: 7931s
+Time: 21432.9s
+Time: 26026s
