@@ -101,3 +101,6 @@ Time: 413.614s
 Time: 485.892s
 Time: 651.098s
 Time: 798.463s
+Time: 395.978s
+Time: 565.307s
+Time: 240.933s
