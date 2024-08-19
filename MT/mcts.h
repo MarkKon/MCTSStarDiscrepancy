@@ -781,6 +781,35 @@ class TreeMCTSUCT_sq : public TreeMCTSUCB1Avg<State, Action> {
         double sq_value = value * value;
         return sq_value;
     }
+    void run(unsigned int iterations) {
+        for (unsigned int i = 0; i < iterations; i++) {
+			NodePath<State, Action> path = this->selectPath(&(this->root));
+			// Simulate the last state in the path
+            TreeNode<State, Action>* node = path.back().first;
+			// If the state is already done, backpropagate the value and remove the action from the parent
+            if (node->done) {
+				double value = node->max;
+				this->backpropagate(value, path);
+				// Remove action from the parent
+                TreeNode<State, Action>* parent = path.path[path.size() - 2].first;
+				Action action = path.path[path.size() - 2].second;
+				parent->removeChild(action);
+				continue;
+			}
+            this->expand(*node);
+            double value = this->simulate(*node);
+            this->backpropagate(value, path);
+            // if the state is a leaf, set it as done
+            if (node->state.isLeaf()) {
+				node->done = true;
+				// Remove action from the parent
+                TreeNode<State, Action>* parent = path.path[path.size() - 2].first;
+				Action action = path.path[path.size() - 2].second;
+				parent->removeChild(action);
+			}
+            this->backpropagateDone(path);
+		}
+	}
 };
 
 template <class State, class Action>
@@ -794,8 +823,36 @@ class TreeMCTSUCT_sqrt : public TreeMCTSUCB1Avg<State, Action> {
         double sq_value = std::sqrt(value);
         return sq_value;
     }
+    void run(unsigned int iterations) {
+        for (unsigned int i = 0; i < iterations; i++) {
+			NodePath<State, Action> path = this->selectPath(&(this->root));
+			// Simulate the last state in the path
+            TreeNode<State, Action>* node = path.back().first;
+			// If the state is already done, backpropagate the value and remove the action from the parent
+            if (node->done) {
+				double value = node->max;
+				this->backpropagate(value, path);
+				// Remove action from the parent
+                TreeNode<State, Action>* parent = path.path[path.size() - 2].first;
+				Action action = path.path[path.size() - 2].second;
+				parent->removeChild(action);
+				continue;
+			}
+            this->expand(*node);
+            double value = this->simulate(*node);
+            this->backpropagate(value, path);
+            // if the state is a leaf, set it as done
+            if (node->state.isLeaf()) {
+				node->done = true;
+				// Remove action from the parent
+                TreeNode<State, Action>* parent = path.path[path.size() - 2].first;
+				Action action = path.path[path.size() - 2].second;
+				parent->removeChild(action);
+			}
+            this->backpropagateDone(path);
+		}
+	}
 };
-
 
 
 
