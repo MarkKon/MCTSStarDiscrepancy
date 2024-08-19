@@ -776,14 +776,10 @@ class TreeMCTSUCT_sq : public TreeMCTSUCB1Avg<State, Action> {
     public:
     using TreeMCTSUCB1Avg<State, Action>::TreeMCTSUCB1Avg;
     double simulate(TreeNode<State, Action> n) {
-        std::vector<double> point = n.state.sample(mt);
-        double value = point_set->discrepancy_snapped(point, *gridpointer);
+        std::vector<double> point = n.state.sample(this->mt);
+        double value = this->point_set->discrepancy_snapped(point, *(this->gridpointer));
         double sq_value = value * value;
-        if(point_output) {
-            std::tuple<std::vector<double>, double> pvtuple = std::make_tuple(sq_value, value);
-            points_and_values.push_back(pvtuple);
-        }
-        return value;
+        return sq_value;
     }
 };
 
@@ -793,16 +789,13 @@ class TreeMCTSUCT_sqrt : public TreeMCTSUCB1Avg<State, Action> {
     public:
     using TreeMCTSUCB1Avg<State, Action>::TreeMCTSUCB1Avg;
     double simulate(TreeNode<State, Action> n) {
-        std::vector<double> point = n.state.sample(mt);
-        double value = point_set->discrepancy_snapped(point, *gridpointer);
+        std::vector<double> point = n.state.sample(TreeMCTSUCB1Avg<State, Action>::mt);
+        double value = this->point_set->discrepancy_snapped(point, *(this->gridpointer));
         double sq_value = std::sqrt(value);
-        if(point_output) {
-            std::tuple<std::vector<double>, double> pvtuple = std::make_tuple(sq_value, value);
-            points_and_values.push_back(pvtuple);
-        }
-        return value;
+        return sq_value;
     }
 };
+
 
 
 
