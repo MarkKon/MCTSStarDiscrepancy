@@ -568,6 +568,27 @@ HPStatistic PolicyCompare(std::vector<UCBHyperparameters>  params, unsigned int 
 }
 
 
+HPStatistic ValueTransforms(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
+	HPStatistic statistic;
+	for (auto& p : params) {
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "Normal")
+		);
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCT_sq<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "sq")
+		);
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCT_sqrt<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "sqrt")
+		);
+	}
+	return statistic;
+};
+
+
+
+
+
+
 
 HPStatistic GridPolicyCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
 	HPStatistic statistic;

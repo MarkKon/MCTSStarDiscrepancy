@@ -770,6 +770,41 @@ class BAST : public TreeMCTS<State, Action> {
 
 };
 
+template <class State, class Action>
+class TreeMCTSUCT_sq : public TreeMCTSUCB1Avg<State, Action> {
+    // Inherit everything but always square the values. Therefore, change the simulate function
+    public:
+    using TreeMCTSUCB1Avg<State, Action>::TreeMCTSUCB1Avg;
+    double simulate(TreeNode<State, Action> n) {
+        std::vector<double> point = n.state.sample(mt);
+        double value = point_set->discrepancy_snapped(point, *gridpointer);
+        double sq_value = value * value;
+        if(point_output) {
+            std::tuple<std::vector<double>, double> pvtuple = std::make_tuple(sq_value, value);
+            points_and_values.push_back(pvtuple);
+        }
+        return value;
+    }
+};
+
+template <class State, class Action>
+class TreeMCTSUCT_sqrt : public TreeMCTSUCB1Avg<State, Action> {
+    // Inherit everything but always squareroot the values. Therefore, change the simulate function
+    public:
+    using TreeMCTSUCB1Avg<State, Action>::TreeMCTSUCB1Avg;
+    double simulate(TreeNode<State, Action> n) {
+        std::vector<double> point = n.state.sample(mt);
+        double value = point_set->discrepancy_snapped(point, *gridpointer);
+        double sq_value = std::sqrt(value);
+        if(point_output) {
+            std::tuple<std::vector<double>, double> pvtuple = std::make_tuple(sq_value, value);
+            points_and_values.push_back(pvtuple);
+        }
+        return value;
+    }
+};
+
+
 
 
 
