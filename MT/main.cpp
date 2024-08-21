@@ -70,8 +70,8 @@ int main() {
 		"Sobol_2048_20.txt",
 		"Sobol_4000_50.txt"
 	};
-	unsigned int small_its = 5;
-	unsigned int big_its = 10;
+	unsigned int small_its = 10000;
+	unsigned int big_its = 100000;
 	HPStatistic bigStatistic;
 	for (const auto& filename : filenames) {
 		AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
