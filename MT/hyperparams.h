@@ -175,6 +175,26 @@ SingleHPStatistic treeSingleSearchGridSobol(UCBHyperparameters params, unsigned 
 	return statistic;
 }
 
+template<class State, class UCBClass>
+SingleHPStatistic treeSingleSearchAnonymous(UCBHyperparameters params, unsigned int its, unsigned int multiplicity,	AnonymousPointSet& pointSet,	std::string name) {
+	SingleHPStatistic statistic(name, params);
+#pragma omp parallel shared(statistic, pointSet)
+	{
+#pragma omp for
+		// Iterate over the muliplicity
+		for (int i = 0; i < multiplicity; i++) {
+			Grid grid(pointSet);
+			State gridState(&grid);
+			std::mt19937 mt(i);
+			UCBClass mctsgrid(&pointSet, gridState, its* 200, mt, params);
+			mctsgrid.run(its);
+#pragma omp critical
+			statistic.addValue(mctsgrid.maxValue());
+		}
+	}
+	return statistic;
+}
+
 
 template<class State, class UCBClass>
 SingleHPStatistic treeSingleSearchFixedPoint(UCBHyperparameters params, unsigned int its, unsigned int multiplicity,

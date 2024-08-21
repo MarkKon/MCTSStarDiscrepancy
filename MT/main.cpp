@@ -5,18 +5,135 @@
 #include <fstream> // Include the necessary header for std::ofstream
 
 int main() {
-	const unsigned n = 121; // Number of points
-	const unsigned d = 8;   // Dimension of the points
+	const unsigned n = 500; // Number of points
+	const unsigned d = 10;   // Dimension of the points
 	// Target value:  0.1702
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
 
-	unsigned int its = 100000;
+	unsigned int its = 100;
 	unsigned int multisample = 100;
 	bool output = true;
 
 	// Start timer
 	auto start = std::chrono::high_resolution_clock::now();
+
+# pragma region BigEndComparison
+	// Get all the files in the "PointSets" directory
+	std::vector<std::string> filenames = {
+		"Faure_50_10.txt",
+		"Faure_100_10.txt",
+		"Faure_121_8.txt",
+		"Faure_121_9.txt",
+		"Faure_121_10.txt",
+		"Faure_121_11.txt",
+		"Faure_169_12.txt",
+		"Faure_343_7.txt",
+		"Faure_500_10.txt",
+		"Faure_529_20.txt",
+		"Faure_1500_20.txt",
+		"Faure_2000_50.txt",
+		"Faure_4000_50.txt",
+		"Halton_30_10.txt",
+		"Halton_50_3.txt",
+		"Halton_50_4.txt",
+		"Halton_50_5.txt",
+		"Halton_50_6.txt",
+		"Halton_50_7.txt",
+		"Halton_50_8.txt",
+		"Halton_50_10.txt",
+		"Halton_100_7.txt",
+		"Halton_100_10.txt",
+		"Halton_500_10.txt",
+		"Halton_1000_7.txt",
+		"Sobol_20_5.txt",
+		"Sobol_50_5.txt",
+		"Sobol_100_4.txt",
+		"Sobol_100_5.txt",
+		"Sobol_100_6.txt",
+		"Sobol_100_8.txt",
+		"Sobol_100_20.txt",
+		"Sobol_100_50.txt",
+		"Sobol_128_8.txt",
+		"Sobol_128_9.txt",
+		"Sobol_128_10.txt",
+		"Sobol_128_11.txt",
+		"Sobol_128_12.txt",
+		"Sobol_128_20.txt",
+		"Sobol_256_7.txt",
+		"Sobol_256_12.txt",
+		"Sobol_256_20.txt",
+		"Sobol_500_5.txt",
+		"Sobol_512_7.txt",
+		"Sobol_1024_20.txt",
+		"Sobol_2000_50.txt",
+		"Sobol_2048_20.txt",
+		"Sobol_4000_50.txt"
+	};
+	unsigned int small_its = 5;
+	unsigned int big_its = 10;
+	HPStatistic bigStatistic;
+	for (const auto& filename : filenames) {
+		AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
+		auto params = cLogEquidistant(1e-5, 10, 19);
+		HPStatistic statistic;
+		for (auto& p : params){
+			statistic.addSingle(
+				treeSingleSearchAnonymous<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(p, small_its, multisample, readSet, "G")
+			);
+		}
+		// Select the hyperparameter with the best mean value
+		double bestMean = -std::numeric_limits<double>::infinity();
+        UCBHyperparameters bestParam;
+        for (const auto& p : params) {
+            if (statistic.get_average("G", p) > bestMean) {
+                bestMean = statistic.get_average("G", p);
+                bestParam = p;
+            }
+        }
+		// Now perform the algorithm on best parameter
+		std::string name = filename + "_G_" + std::to_string(bestParam.c) ; 
+		bigStatistic.addSingle(
+            treeSingleSearchAnonymous<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(bestParam, big_its, multisample, readSet, name)
+        );
+		std::cout << "Finished " << name << std::endl;
+    }
+	// Output the results
+	bigStatistic.output_to_file("outputs/BigEndComparison.txt");
+
+
+# pragma endregion BigEndComparison
+
+
+
+# pragma region PointSetOutput
+	// HaltonPointSet pointSet(d, n);
+	// pointSet.generate();
+	// std::string filename = "PointSets/Halton_" + std::to_string(n) + "_" + std::to_string(d) + ".txt";
+	// pointSet.writeToFile(filename);
+
+	// AnonymousPointSet readSet = readFromFile(filename);
+	// // Do a check if the point sets are the same (up to precision 5 decimal places)
+	// bool same = true;
+    // for (unsigned i = 0; i < n; ++i) {
+    //     for (unsigned j = 0; j < d; ++j) {
+    //         if (std::abs(readSet.points[i][j] - pointSet.points[i][j]) > 1e-5) {
+    //             same = false;
+    //             break;
+    //         }
+    //     }
+    //     if (!same) {
+    //         break;
+    //     }
+    // }
+    // if (output) {
+    //     std::cout << "Point sets are the same: " << same << std::endl;
+    // }
+# pragma endregion PointSetOutput
+
+
+# pragma endregion PointSetOutput
+
 
 # pragma region StateComparison
 # pragma region OutputAllStatesUCB1
@@ -41,10 +158,18 @@ int main() {
 
 
 # pragma region ValueTransforms
-	auto params = cLogEquidistant(1e-5, 10, 19);
-	HPStatistic stat =  ValueTransforms(params, its, multisample, n, d);
-	stat.output_to_file("outputs/value_transforms_121_8.txt");
+	// auto params = cLogEquidistant(1e-5, 10, 19);
+	// HPStatistic stat =  ValueTransforms(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
 # pragma endregion ValueTransforms
+
+
+# pragma region Restarts
+	// auto params = cLogEquidistant(1e-5, 10, 19);
+	// HPStatistic stat =  ValueTransforms(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/tmp.txt");
+# pragma endregion Restarts
+
 
 
 # pragma region GridvsImproved // THis is not interesting

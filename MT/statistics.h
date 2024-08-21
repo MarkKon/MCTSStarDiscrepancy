@@ -35,6 +35,19 @@ struct HPStatistic {
 		addStatistic(algorithm_name, hyperparameters);
 		statistics.back().addValue(value);
 	}
+	double get_average(std::string algorithm_name, UCBHyperparameters hyperparameter) {
+		double sum = 0.0;
+        int count = 0;
+        for (auto& statistic : statistics) {
+            if (statistic.algorithm_name == algorithm_name && statistic.hyperparameters == hyperparameter) {
+                for (auto& value : statistic.values) {
+                    sum += value;
+                    count++;
+                }
+            }
+        }
+        return sum / count;
+    }
 	// Function to output the statistics to a file
 	void output_to_file(std::string filename) {
 		std::ofstream file;

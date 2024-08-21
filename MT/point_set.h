@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <string>
 
 #include "faure.hpp"
 #include "halton.hpp"
@@ -53,6 +55,8 @@ public:
     void writeToFile(const std::string& filename) {
         std::ofstream file;
 		file.open(filename);
+        // write n and d to the file
+        file << n << "," << d << std::endl;
 		for (unsigned int i = 0; i < n; i++) {
 			for (unsigned int j = 0; j < d; j++) {
 				file << points[i][j] << ",";
@@ -107,7 +111,12 @@ public:
 		this->points = points;
 	}
     void generate(){};
+
 };
+
+// Read from file and return as AnonymousPointSet
+AnonymousPointSet readFromFile(const std::string& filename);
+
 
 class UniformRandomPointSet : public PointSet {
 public:

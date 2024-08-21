@@ -81,6 +81,54 @@ double PointSet::discrepancy_snapped(const std::vector<double>& point, const Gri
     return (double) std::max(discrepancy(up_snapped_point), discrepancy_bar(down_snapped_point));
 }
 
+// Read from file and return Anonymos Point Set
+
+
+AnonymousPointSet readFromFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open file");
+    }
+
+    unsigned int n, d;
+    std::string line;
+
+    // Read the first line to get n and d
+    if (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string temp;
+        std::getline(ss, temp, ',');
+        n = std::stoi(temp);
+        std::getline(ss, temp, ',');
+        d = std::stoi(temp);
+    } else {
+        throw std::runtime_error("File format error: Could not read n and d");
+    }
+
+    // Create the PointSet object
+    AnonymousPointSet pointSet(d, n);
+    pointSet.points.resize(n, std::vector<double>(d));
+
+    // Read the points
+    for (unsigned int i = 0; i < n; i++) {
+        if (std::getline(file, line)) {
+            std::stringstream ss(line);
+            std::string temp;
+            for (unsigned int j = 0; j < d; j++) {
+                if (std::getline(ss, temp, ',')) {
+                    pointSet.points[i][j] = std::stod(temp);
+                } else {
+                    throw std::runtime_error("File format error: Not enough points in line");
+                }
+            }
+        } else {
+            throw std::runtime_error("File format error: Not enough lines for points");
+        }
+    }
+
+    file.close();
+    return pointSet;
+}
 
 
 Grid::Grid(const PointSet& p) {
