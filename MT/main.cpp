@@ -70,8 +70,8 @@ int main() {
 		"Sobol_2048_20.txt",
 		"Sobol_4000_50.txt"
 	};
-	unsigned int small_its = 100;
-	unsigned int big_its = 1000;
+	unsigned int small_its = 10000;
+	unsigned int big_its = 100000;
 	HPStatistic bigStatistic;
 	for (const auto& filename : filenames) {
 		AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
@@ -99,7 +99,7 @@ int main() {
 		std::cout << "Finished " << name << std::endl;
     }
 	// Output the results
-	bigStatistic.output_to_file("outputs/BigEndComparison.txt");
+	bigStatistic.output_to_file("outputs/EndComparison_G.txt");
 
 
 # pragma endregion BigEndComparison
