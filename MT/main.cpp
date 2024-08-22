@@ -112,27 +112,27 @@ int main() {
 		HPStatistic statistic;
 		for (auto& p : params){
 			statistic.addSingle(
-				treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, small_its, multisample, readSet, "ISDisG")
+				treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(p, small_its, multisample, readSet, "ISDisG/Sep")
 			);
 		}
 		// Select the hyperparameter with the best mean value
 		double bestMean = -std::numeric_limits<double>::infinity();
         UCBHyperparameters bestParam;
         for (const auto& p : params) {
-            if (statistic.get_average("ISDisG", p) > bestMean) {
-                bestMean = statistic.get_average("ISDisG", p);
+            if (statistic.get_average("ISDisG/Sep", p) > bestMean) {
+                bestMean = statistic.get_average("ISDisG/Sep", p);
                 bestParam = p;
             }
         }
 		// Now perform the algorithm on best parameter
-		std::string name = filename + "_ISDisG_" + std::to_string(bestParam.c) ; 
+		std::string name = filename + "_ISDisG/Sep_" + std::to_string(bestParam.c) ; 
 		bigStatistic.addSingle(
-            treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(bestParam, big_its, multisample, readSet, name)
+            treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(bestParam, big_its, multisample, readSet, name)
         );
 		std::cout << "Finished " << name << std::endl;
     }
 	// Output the results
-	bigStatistic.output_to_file("outputs/EndComparison_ISDisG.txt");
+	bigStatistic.output_to_file("outputs/EndComparison_ISDisG_Sep.txt");
 
 
 # pragma endregion BigEndComparison
