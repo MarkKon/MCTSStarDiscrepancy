@@ -70,6 +70,39 @@ int main() {
 		"Sobol_2048_20.txt",
 		"Sobol_4000_50.txt"
 	};
+	// unsigned int small_its = 10000;
+	// unsigned int big_its = 100000;
+	// HPStatistic bigStatistic;
+	// for (const auto& filename : filenames) {
+	// 	AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
+	// 	auto params = cLogEquidistant(1e-5, 10, 19);
+	// 	HPStatistic statistic;
+	// 	for (auto& p : params){
+	// 		statistic.addSingle(
+	// 			treeSingleSearchAnonymous<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(p, small_its, multisample, readSet, "G")
+	// 		);
+	// 	}
+	// 	// Select the hyperparameter with the best mean value
+	// 	double bestMean = -std::numeric_limits<double>::infinity();
+    //     UCBHyperparameters bestParam;
+    //     for (const auto& p : params) {
+    //         if (statistic.get_average("G", p) > bestMean) {
+    //             bestMean = statistic.get_average("G", p);
+    //             bestParam = p;
+    //         }
+    //     }
+	// 	// Now perform the algorithm on best parameter
+	// 	std::string name = filename + "_G_" + std::to_string(bestParam.c) ; 
+	// 	bigStatistic.addSingle(
+    //         treeSingleSearchAnonymous<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(bestParam, big_its, multisample, readSet, name)
+    //     );
+	// 	std::cout << "Finished " << name << std::endl;
+    // }
+	// // Output the results
+	// bigStatistic.output_to_file("outputs/EndComparison_G.txt");
+
+
+
 	unsigned int small_its = 10000;
 	unsigned int big_its = 100000;
 	HPStatistic bigStatistic;
@@ -79,27 +112,27 @@ int main() {
 		HPStatistic statistic;
 		for (auto& p : params){
 			statistic.addSingle(
-				treeSingleSearchAnonymous<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(p, small_its, multisample, readSet, "G")
+				treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, small_its, multisample, readSet, "ISDisG")
 			);
 		}
 		// Select the hyperparameter with the best mean value
 		double bestMean = -std::numeric_limits<double>::infinity();
         UCBHyperparameters bestParam;
         for (const auto& p : params) {
-            if (statistic.get_average("G", p) > bestMean) {
-                bestMean = statistic.get_average("G", p);
+            if (statistic.get_average("ISDisG", p) > bestMean) {
+                bestMean = statistic.get_average("ISDisG", p);
                 bestParam = p;
             }
         }
 		// Now perform the algorithm on best parameter
-		std::string name = filename + "_G_" + std::to_string(bestParam.c) ; 
+		std::string name = filename + "_ISDisG_" + std::to_string(bestParam.c) ; 
 		bigStatistic.addSingle(
-            treeSingleSearchAnonymous<SampleGridState, TreeMCTSUCB1Avg<SampleGridState, Action>>(bestParam, big_its, multisample, readSet, name)
+            treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(bestParam, big_its, multisample, readSet, name)
         );
 		std::cout << "Finished " << name << std::endl;
     }
 	// Output the results
-	bigStatistic.output_to_file("outputs/EndComparison_G.txt");
+	bigStatistic.output_to_file("outputs/EndComparison_ISDisG.txt");
 
 
 # pragma endregion BigEndComparison
