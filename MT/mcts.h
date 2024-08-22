@@ -172,7 +172,7 @@ public:
 		grid = Grid();
 		gridpointer = &grid;
 		nodes = std::vector<TreeNode<State, Action>>();
-		root = nullptr;
+		root = State();
         best_point = std::vector<float>();
         point_output = false;
         points_and_values = std::vector<std::tuple<std::vector<double>, double>>();
@@ -459,6 +459,129 @@ class TreeMCTSUCB1Avg : public TreeMCTS<State, Action> {
 		double value = child.sum;
 		return value/visits + this->hyperparameters.c * std::sqrt(std::log(total_visits) / visits);
 	}
+};
+
+template <class State, class Action>
+class UCTupperOnly : public TreeMCTSUCB1Avg<State, Action> {
+    public:
+    using TreeMCTSUCB1Avg<State, Action>::TreeMCTSUCB1Avg;
+    // Overrride the simulate function
+    double simulate(TreeNode<State, Action> n) {
+        std::vector<double> point = n.state.sample(this->mt);
+        double value = this->point_set->discrepancy_up(point, *(this->gridpointer));
+        if(this->point_output) {
+            std::tuple<std::vector<double>, double> pvtuple = std::make_tuple(point, value);
+            this->points_and_values.push_back(pvtuple);
+        }
+        return value;
+    }
+    void run(unsigned int iterations) {
+        for (unsigned int i = 0; i < iterations; i++) {
+			NodePath<State, Action> path = this->selectPath(&(this->root));
+			// Simulate the last state in the path
+            TreeNode<State, Action>* node = path.back().first;
+			// If the state is already done, backpropagate the value and remove the action from the parent
+            if (node->done) {
+				double value = node->max;
+				this->backpropagate(value, path);
+				// Remove action from the parent
+                TreeNode<State, Action>* parent = path.path[path.size() - 2].first;
+				Action action = path.path[path.size() - 2].second;
+				parent->removeChild(action);
+				continue;
+			}
+            this->expand(*node);
+            double value = this->simulate(*node);
+            this->backpropagate(value, path);
+            // if the state is a leaf, set it as done
+            if (node->state.isLeaf()) {
+				node->done = true;
+				// Remove action from the parent
+                TreeNode<State, Action>* parent = path.path[path.size() - 2].first;
+				Action action = path.path[path.size() - 2].second;
+				parent->removeChild(action);
+			}
+            this->backpropagateDone(path);
+		}
+	}
+};
+
+template <class State, class Action>
+class UCTlowerOnly : public TreeMCTSUCB1Avg<State, Action> {
+    public:
+    using TreeMCTSUCB1Avg<State, Action>::TreeMCTSUCB1Avg;
+    // Overrride the simulate function
+    double simulate(TreeNode<State, Action> n) {
+        std::vector<double> point = n.state.sample(this->mt);
+        double value = this->point_set->discrepancy_down(point, *(this->gridpointer));
+        if(this->point_output) {
+            std::tuple<std::vector<double>, double> pvtuple = std::make_tuple(point, value);
+            this->points_and_values.push_back(pvtuple);
+        }
+        return value;
+    }
+    void run(unsigned int iterations) {
+        for (unsigned int i = 0; i < iterations; i++) {
+			NodePath<State, Action> path = this->selectPath(&(this->root));
+			// Simulate the last state in the path
+            TreeNode<State, Action>* node = path.back().first;
+			// If the state is already done, backpropagate the value and remove the action from the parent
+            if (node->done) {
+				double value = node->max;
+				this->backpropagate(value, path);
+				// Remove action from the parent
+                TreeNode<State, Action>* parent = path.path[path.size() - 2].first;
+				Action action = path.path[path.size() - 2].second;
+				parent->removeChild(action);
+				continue;
+			}
+            this->expand(*node);
+            double value = this->simulate(*node);
+            this->backpropagate(value, path);
+            // if the state is a leaf, set it as done
+            if (node->state.isLeaf()) {
+				node->done = true;
+				// Remove action from the parent
+                TreeNode<State, Action>* parent = path.path[path.size() - 2].first;
+				Action action = path.path[path.size() - 2].second;
+				parent->removeChild(action);
+			}
+            this->backpropagateDone(path);
+		}
+	}
+};
+
+template <class State, class Action>
+class UCTSeparated : public TreeMCTS<State, Action> {
+    public:
+    UCTupperOnly<State, Action> upper;
+    UCTlowerOnly<State, Action> lower;
+
+    // using TreeMCTS<State, Action>::TreeMCTS;
+    UCTSeparated() : TreeMCTS<State, Action> () {
+        upper = UCTupperOnly<State, Action>();
+        lower = UCTlowerOnly<State, Action>();
+    }
+
+    UCTSeparated(PointSet* p, State rootstate, const unsigned int allocation_size, std::mt19937 twister, UCBHyperparameters hyperparameters) : TreeMCTS<State, Action>(p, rootstate, allocation_size, twister, hyperparameters) {
+        upper = UCTupperOnly<State, Action>(p, rootstate, allocation_size, twister, hyperparameters);
+        lower = UCTlowerOnly<State, Action>(p, rootstate, allocation_size, twister, hyperparameters);
+        // Set the gridpointer of these manually 
+        upper.gridpointer = this->gridpointer;
+        lower.gridpointer = this->gridpointer;
+    }
+    // Define custom run function
+    void run(unsigned int iterations) {
+        // in #pragma omp parallel, run upper.run(iterations); and lower.run(iterations).       
+        upper.run(iterations);
+        lower.run(iterations);
+    }   
+    double maxValue() {
+        // return max of upper.maxValue and lower.maxValue
+        return std::max(upper.maxValue(), lower.maxValue());
+    }
+
+
 };
 
 template <class State, class Action>

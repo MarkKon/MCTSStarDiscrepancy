@@ -49,6 +49,10 @@ public:
 
     double discrepancy_bar(const std::vector<double>& point);
 
+    double discrepancy_up(const std::vector<double>& point, const Grid& grid);
+
+    double discrepancy_down(const std::vector<double>& point, const Grid& grid);
+
     // snapped discrepancy with a given grid (see class Grid)
     double discrepancy_snapped(const std::vector<double>& point, const Grid& grid);
 

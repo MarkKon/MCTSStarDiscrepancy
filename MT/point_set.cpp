@@ -53,6 +53,38 @@ double PointSet::discrepancy_bar(const std::vector<double>& point)
 	return std::fabs(relative_points - volumeOfHyperrectangle); 
 }
 
+double PointSet::discrepancy_up(const std::vector<double>& point, const Grid& grid) {
+    // snap the point up to the nearest upper grid point
+    std::vector<double> up_snapped_point(d);
+    for (unsigned int i = 0; i < d; i++) {
+        auto it = std::upper_bound(grid.grid[i].begin(), grid.grid[i].end(), point[i]);
+        if (it == grid.grid[i].end()) {
+            up_snapped_point[i] = 1;
+        }
+        else {
+            up_snapped_point[i] = *it;
+        }
+    }
+    return (double) discrepancy(up_snapped_point);
+}
+
+double PointSet::discrepancy_down(const std::vector<double>& point, const Grid& grid) {
+    // snap the point down to the nearest lower grid point
+    std::vector<double> down_snapped_point(d);
+    for (unsigned int i = 0; i < d; i++) {
+        auto it = std::lower_bound(grid.grid[i].begin(), grid.grid[i].end(), point[i]);
+        if (it == grid.grid[i].begin()) {
+            down_snapped_point[i] = 0;
+        }
+        else {
+            down_snapped_point[i] = *(--it);
+
+        }
+    }
+    return (double) discrepancy_bar(down_snapped_point);
+}
+
+
 double PointSet::discrepancy_snapped(const std::vector<double>& point, const Grid& grid) {
     // snap the point up to the nearest upper grid point
     std::vector<double> up_snapped_point(d);

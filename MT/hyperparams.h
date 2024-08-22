@@ -605,8 +605,18 @@ HPStatistic ValueTransforms(std::vector<UCBHyperparameters>  params, unsigned in
 };
 
 
-
-
+HPStatistic SeparateCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
+	HPStatistic statistic;
+	for (auto& p : params) {
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG/UCT")
+		);
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "ISDisG/Split")
+		);
+	}
+	return statistic;
+};
 
 
 
