@@ -11,8 +11,8 @@ int main() {
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
 
-	unsigned int its = 20;
-	unsigned int multisample = 5;
+	unsigned int its = 100000;
+	unsigned int multisample = 100;
 	bool output = true;
 
 	// Start timer
@@ -150,7 +150,7 @@ int main() {
 	for(const auto& filename : filenames){
 		AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
 		auto params = cLogEquidistant(1e-5, 10, 19);
-		HPStatistic stat = SeparatedCompare(params, its, multisample, n, d);
+		HPStatistic stat = SeparatedCompare(params, its, multisample, readSet);
 		stat.output_to_file("outputs/Separated_" + filename);
 
 	}

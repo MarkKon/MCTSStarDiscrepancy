@@ -153,6 +153,29 @@ SingleHPStatistic treeSingleSearchGrid(UCBHyperparameters params, unsigned int i
 }
 
 template<class State, class UCBClass>
+SingleHPStatistic treeSingleSearchSequenceInput(UCBHyperparameters params, unsigned int its, unsigned int multiplicity,
+	AnonymousPointSet pointset, std::string name) {
+	SingleHPStatistic statistic(name, params);
+#pragma omp parallel shared(statistic, pointSet)
+	{
+#pragma omp for
+		// Iterate over the muliplicity
+		for (int i = 0; i < multiplicity; i++) {
+			Grid grid(pointSet);
+			State gridState(&grid);
+			std::mt19937 mt(i);
+			UCBClass mctsgrid(&pointSet, gridState, its * point_d * 3, mt, params);
+			mctsgrid.run(its);
+#pragma omp critical
+			statistic.addValue(mctsgrid.maxValue());
+		}
+	}
+	return statistic;
+}
+
+
+
+template<class State, class UCBClass>
 SingleHPStatistic treeSingleSearchGridSobol(UCBHyperparameters params, unsigned int its, unsigned int multiplicity,
 	unsigned int point_n, unsigned int point_d,	std::string name) {
 	SingleHPStatistic statistic(name, params);
@@ -702,17 +725,17 @@ HPStatistic ImprovedSplitPolicyCompare(std::vector<UCBHyperparameters>  params, 
 };
 
 
-HPStatistic SeparatedCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
+HPStatistic SeparatedCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, AnonymousPointSet pointset) {
 	HPStatistic statistic;
 	for (auto& p : params) {
 		// The policies to compare: UCT, UCT-Tuned, SP-UCT, Depth, 1/2-Greedy+UCT, sqrtUCB + UCT, 
 		// Add UCT
-				statistic.addSingle(
-			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSGreedyUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "Single")
+		statistic.addSingle(
+			treeSingleSearchSequenceInput<GridStateExactAndImprovedSplit, TreeMCTSGreedyUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, pointset, "Single")
 		);
 		std::cout << "Single done" << std::endl;
 		statistic.addSingle(
-			treeSingleSearchGrid<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "Separated")
+			treeSingleSearchSequenceInput<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, pointset, "Separated")
 		);
 		std::cout << "Separated done" << std::endl;
 		
