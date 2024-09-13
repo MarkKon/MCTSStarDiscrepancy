@@ -154,7 +154,7 @@ SingleHPStatistic treeSingleSearchGrid(UCBHyperparameters params, unsigned int i
 
 template<class State, class UCBClass>
 SingleHPStatistic treeSingleSearchSequenceInput(UCBHyperparameters params, unsigned int its, unsigned int multiplicity,
-	AnonymousPointSet pointSet, std::string name) {
+	AnonymousPointSet& pointSet, std::string name) {
 	SingleHPStatistic statistic(name, params);
 #pragma omp parallel shared(statistic, pointSet)
 	{
@@ -164,7 +164,7 @@ SingleHPStatistic treeSingleSearchSequenceInput(UCBHyperparameters params, unsig
 			Grid grid(pointSet);
 			State gridState(&grid);
 			std::mt19937 mt(i);
-			UCBClass mctsgrid(&pointSet, gridState, its * pointSet.d * 3, mt, params);
+			UCBClass mctsgrid(&pointSet, gridState, its * 100 * 3, mt, params);
 			mctsgrid.run(its);
 #pragma omp critical
 			statistic.addValue(mctsgrid.maxValue());
@@ -725,7 +725,7 @@ HPStatistic ImprovedSplitPolicyCompare(std::vector<UCBHyperparameters>  params, 
 };
 
 
-HPStatistic SeparatedCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, AnonymousPointSet pointset) {
+HPStatistic SeparatedCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, AnonymousPointSet& pointset) {
 	HPStatistic statistic;
 	for (auto& p : params) {
 		// The policies to compare: UCT, UCT-Tuned, SP-UCT, Depth, 1/2-Greedy+UCT, sqrtUCB + UCT, 
