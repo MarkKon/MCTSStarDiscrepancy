@@ -164,7 +164,7 @@ SingleHPStatistic treeSingleSearchSequenceInput(UCBHyperparameters params, unsig
 			Grid grid(pointSet);
 			State gridState(&grid);
 			std::mt19937 mt(i);
-			UCBClass mctsgrid(&pointSet, gridState, its * 100 * 3, mt, params);
+			UCBClass mctsgrid(&pointSet, gridState, its * pointSet.d * 3, mt, params);
 			mctsgrid.run(its);
 #pragma omp critical
 			statistic.addValue(mctsgrid.maxValue());
