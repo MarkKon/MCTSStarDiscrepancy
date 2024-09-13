@@ -11,8 +11,8 @@ int main() {
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
 
-	unsigned int its = 100;
-	unsigned int multisample = 100;
+	unsigned int its = 20;
+	unsigned int multisample = 5;
 	bool output = true;
 
 	// Start timer
@@ -20,56 +20,56 @@ int main() {
 
 # pragma region BigEndComparison
 	// Get all the files in the "PointSets" directory
-	std::vector<std::string> filenames = {
-		"Faure_50_10.txt",
-		"Faure_100_10.txt",
-		"Faure_121_8.txt",
-		"Faure_121_9.txt",
-		"Faure_121_10.txt",
-		"Faure_121_11.txt",
-		"Faure_169_12.txt",
-		"Faure_343_7.txt",
-		"Faure_500_10.txt",
-		"Faure_529_20.txt",
-		"Faure_1500_20.txt",
-		"Faure_2000_50.txt",
-		"Faure_4000_50.txt",
-		"Halton_30_10.txt",
-		"Halton_50_3.txt",
-		"Halton_50_4.txt",
-		"Halton_50_5.txt",
-		"Halton_50_6.txt",
-		"Halton_50_7.txt",
-		"Halton_50_8.txt",
-		"Halton_50_10.txt",
-		"Halton_100_7.txt",
-		"Halton_100_10.txt",
-		"Halton_500_10.txt",
-		"Halton_1000_7.txt",
-		"Sobol_20_5.txt",
-		"Sobol_50_5.txt",
-		"Sobol_100_4.txt",
-		"Sobol_100_5.txt",
-		"Sobol_100_6.txt",
-		"Sobol_100_8.txt",
-		"Sobol_100_20.txt",
-		"Sobol_100_50.txt",
-		"Sobol_128_8.txt",
-		"Sobol_128_9.txt",
-		"Sobol_128_10.txt",
-		"Sobol_128_11.txt",
-		"Sobol_128_12.txt",
-		"Sobol_128_20.txt",
-		"Sobol_256_7.txt",
-		"Sobol_256_12.txt",
-		"Sobol_256_20.txt",
-		"Sobol_500_5.txt",
-		"Sobol_512_7.txt",
-		"Sobol_1024_20.txt",
-		"Sobol_2000_50.txt",
-		"Sobol_2048_20.txt",
-		"Sobol_4000_50.txt"
-	};
+	// std::vector<std::string> filenames = {
+	// 	"Faure_50_10.txt",
+	// 	"Faure_100_10.txt",
+	// 	"Faure_121_8.txt",
+	// 	"Faure_121_9.txt",
+	// 	"Faure_121_10.txt",
+	// 	"Faure_121_11.txt",
+	// 	"Faure_169_12.txt",
+	// 	"Faure_343_7.txt",
+	// 	"Faure_500_10.txt",
+	// 	"Faure_529_20.txt",
+	// 	"Faure_1500_20.txt",
+	// 	"Faure_2000_50.txt",
+	// 	"Faure_4000_50.txt",
+	// 	"Halton_30_10.txt",
+	// 	"Halton_50_3.txt",
+	// 	"Halton_50_4.txt",
+	// 	"Halton_50_5.txt",
+	// 	"Halton_50_6.txt",
+	// 	"Halton_50_7.txt",
+	// 	"Halton_50_8.txt",
+	// 	"Halton_50_10.txt",
+	// 	"Halton_100_7.txt",
+	// 	"Halton_100_10.txt",
+	// 	"Halton_500_10.txt",
+	// 	"Halton_1000_7.txt",
+	// 	"Sobol_20_5.txt",
+	// 	"Sobol_50_5.txt",
+	// 	"Sobol_100_4.txt",
+	// 	"Sobol_100_5.txt",
+	// 	"Sobol_100_6.txt",
+	// 	"Sobol_100_8.txt",
+	// 	"Sobol_100_20.txt",
+	// 	"Sobol_100_50.txt",
+	// 	"Sobol_128_8.txt",
+	// 	"Sobol_128_9.txt",
+	// 	"Sobol_128_10.txt",
+	// 	"Sobol_128_11.txt",
+	// 	"Sobol_128_12.txt",
+	// 	"Sobol_128_20.txt",
+	// 	"Sobol_256_7.txt",
+	// 	"Sobol_256_12.txt",
+	// 	"Sobol_256_20.txt",
+	// 	"Sobol_500_5.txt",
+	// 	"Sobol_512_7.txt",
+	// 	"Sobol_1024_20.txt",
+	// 	"Sobol_2000_50.txt",
+	// 	"Sobol_2048_20.txt",
+	// 	"Sobol_4000_50.txt"
+	// };
 	// unsigned int small_its = 10000;
 	// unsigned int big_its = 100000;
 	// HPStatistic bigStatistic;
@@ -103,39 +103,59 @@ int main() {
 
 
 
-	unsigned int small_its = 10000;
-	unsigned int big_its = 100000;
-	HPStatistic bigStatistic;
-	for (const auto& filename : filenames) {
-		AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
-		auto params = cLogEquidistant(1e-5, 10, 19);
-		HPStatistic statistic;
-		for (auto& p : params){
-			statistic.addSingle(
-				treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(p, small_its, multisample, readSet, "ISDisG/Sep")
-			);
-		}
-		// Select the hyperparameter with the best mean value
-		double bestMean = -std::numeric_limits<double>::infinity();
-        UCBHyperparameters bestParam;
-        for (const auto& p : params) {
-            if (statistic.get_average("ISDisG/Sep", p) > bestMean) {
-                bestMean = statistic.get_average("ISDisG/Sep", p);
-                bestParam = p;
-            }
-        }
-		// Now perform the algorithm on best parameter
-		std::string name = filename + "_ISDisG/Sep_" + std::to_string(bestParam.c) ; 
-		bigStatistic.addSingle(
-            treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(bestParam, big_its, multisample, readSet, name)
-        );
-		std::cout << "Finished " << name << std::endl;
-    }
-	// Output the results
-	bigStatistic.output_to_file("outputs/EndComparison_ISDisG_Sep.txt");
+	// unsigned int small_its = 10000;
+	// unsigned int big_its = 100000;
+	// HPStatistic bigStatistic;
+	// for (const auto& filename : filenames) {
+	// 	AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
+	// 	auto params = cLogEquidistant(1e-5, 10, 19);
+	// 	HPStatistic statistic;
+	// 	for (auto& p : params){
+	// 		statistic.addSingle(
+	// 			treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(p, small_its, multisample, readSet, "ISDisG/Sep")
+	// 		);
+	// 	}
+	// 	// Select the hyperparameter with the best mean value
+	// 	double bestMean = -std::numeric_limits<double>::infinity();
+    //     UCBHyperparameters bestParam;
+    //     for (const auto& p : params) {
+    //         if (statistic.get_average("ISDisG/Sep", p) > bestMean) {
+    //             bestMean = statistic.get_average("ISDisG/Sep", p);
+    //             bestParam = p;
+    //         }
+    //     }
+	// 	// Now perform the algorithm on best parameter
+	// 	std::string name = filename + "_ISDisG/Sep_" + std::to_string(bestParam.c) ; 
+	// 	bigStatistic.addSingle(
+    //         treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(bestParam, big_its, multisample, readSet, name)
+    //     );
+	// 	std::cout << "Finished " << name << std::endl;
+    // }
+	// // Output the results
+	// bigStatistic.output_to_file("outputs/EndComparison_ISDisG_Sep.txt");
 
 
 # pragma endregion BigEndComparison
+
+
+# pragma region SeparateComparison
+
+	std::vector<std::string> filenames = {
+		"Faure_121_8.txt",
+		"Faure_121_11.txt",
+		"Faure_343_7.txt",
+		"Faure_529_20.txt",
+		"Faure_1500_20.txt",
+	};
+	for(const auto& filename : filenames){
+		AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
+		auto params = cLogEquidistant(1e-5, 10, 19);
+		HPStatistic stat = SeparatedCompare(params, its, multisample, n, d);
+		stat.output_to_file("outputs/Separated_" + filename);
+
+	}
+
+# pragma endregion SeparateComparison
 
 
 

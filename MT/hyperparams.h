@@ -700,3 +700,22 @@ HPStatistic ImprovedSplitPolicyCompare(std::vector<UCBHyperparameters>  params, 
 	}
 	return statistic;
 };
+
+
+HPStatistic SeparatedCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
+	HPStatistic statistic;
+	for (auto& p : params) {
+		// The policies to compare: UCT, UCT-Tuned, SP-UCT, Depth, 1/2-Greedy+UCT, sqrtUCB + UCT, 
+		// Add UCT
+				statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, TreeMCTSGreedyUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "Single")
+		);
+		std::cout << "Single done" << std::endl;
+		statistic.addSingle(
+			treeSingleSearchGrid<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "Separated")
+		);
+		std::cout << "Separated done" << std::endl;
+		
+	}
+	return statistic;
+};
