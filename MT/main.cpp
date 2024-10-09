@@ -5,14 +5,14 @@
 #include <fstream> // Include the necessary header for std::ofstream
 
 int main() {
-	const unsigned n = 500; // Number of points
-	const unsigned d = 10;   // Dimension of the points
+	const unsigned n = 1500; // Number of points
+	const unsigned d = 20;   // Dimension of the points
 	// Target value:  0.1702
 	// Best own value: 0.155384 (SampleGridState, TreeMCTSBayesGrid, mt(3), c = 0.01, its = 30000)
 	// Through HP Search: Min, Max value: 0.162335, C: 0.00341095; Algorithm: Bayes, Max value : 0.162335, C : 1.16346 (5000 its)
 
-	unsigned int its = 100000;
-	unsigned int multisample = 100;
+	unsigned int its = 1000;
+	unsigned int multisample = 10;
 	bool output = true;
 
 	// Start timer
@@ -135,25 +135,57 @@ int main() {
 	// bigStatistic.output_to_file("outputs/EndComparison_ISDisG_Sep.txt");
 
 
+	// unsigned int small_its = 10000;
+	// unsigned int big_its = 100000;
+	// HPStatistic bigStatistic;
+	// for (const auto& filename : filenames) {
+	// 	AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
+	// 	auto params = cLogEquidistant(1e-5, 10, 19);
+	// 	HPStatistic statistic;
+	// 	for (auto& p : params){
+	// 		statistic.addSingle(
+	// 			treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(p, small_its, multisample, readSet, "ISDisG/Sep")
+	// 		);
+	// 	}
+	// 	// Select the hyperparameter with the best mean value
+	// 	double bestMean = -std::numeric_limits<double>::infinity();
+    //     UCBHyperparameters bestParam;
+    //     for (const auto& p : params) {
+    //         if (statistic.get_average("ISDisG/Sep", p) > bestMean) {
+    //             bestMean = statistic.get_average("ISDisG/Sep", p);
+    //             bestParam = p;
+    //         }
+    //     }
+	// 	// Now perform the algorithm on best parameter
+	// 	std::string name = filename + "_ISDisG/Sep_" + std::to_string(bestParam.c) ; 
+	// 	bigStatistic.addSingle(
+    //         treeSingleSearchAnonymous<GridStateExactAndImprovedSplit, UCTSeparated<GridStateExactAndImprovedSplit, Action>>(bestParam, big_its, multisample, readSet, name)
+    //     );
+	// 	std::cout << "Finished " << name << std::endl;
+    // }
+	// // Output the results
+	// bigStatistic.output_to_file("outputs/EndComparison_ISDisG_Sep.txt");
+
+
 # pragma endregion BigEndComparison
 
 
 # pragma region SeparateComparison
 
-	std::vector<std::string> filenames = {
-		"Faure_121_8.txt",
-		"Faure_121_11.txt",
-		"Faure_343_7.txt",
-		"Faure_529_20.txt",
-		"Faure_1500_20.txt",
-	};
-	for(const auto& filename : filenames){
-		AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
-		auto params = cLogEquidistant(1e-5, 10, 19);
-		HPStatistic stat = SeparatedCompare(params, its, multisample, readSet);
-		stat.output_to_file("outputs/Separated_" + filename);
+	// std::vector<std::string> filenames = {
+	// 	"Faure_121_8.txt",
+	// 	"Faure_121_11.txt",
+	// 	"Faure_343_7.txt",
+	// 	"Faure_529_20.txt",
+	// 	"Faure_1500_20.txt",
+	// };
+	// for(const auto& filename : filenames){
+	// 	AnonymousPointSet readSet = readFromFile("PointSets/" + filename);
+	// 	auto params = cLogEquidistant(1e-5, 10, 19);
+	// 	HPStatistic stat = SeparatedCompare(params, its, multisample, readSet);
+	// 	stat.output_to_file("outputs/Separated_" + filename);
 
-	}
+	// }
 
 # pragma endregion SeparateComparison
 
@@ -189,6 +221,20 @@ int main() {
 
 
 # pragma region StateComparison
+
+# pragma region kComparison
+	// auto params = cLogEquidistant(1e-5, 10, 19);
+	// HPStatistic stat =  kCompare(params, its, multisample, n, d);
+	// stat.output_to_file("outputs/kComp_30_000_343_7.txt");
+# pragma endregion kComparison
+
+# pragma region kImprovedComparison
+	auto params = cLogEquidistant(1e-5, 10, 19);
+	AnonymousPointSet readSet = readFromFile("PointSets/Sobol_2000_50.txt");
+	HPStatistic stat = kImprovedCompareAnonymous(params, its, multisample, readSet);
+	stat.output_to_file("outputs/kImprovedComp_1000_Sobol_2000_50.txt");
+# pragma endregion kImprovedComparison	
+
 # pragma region OutputAllStatesUCB1
 	// auto params = cLogEquidistant(1e-5, 10, 19);
 	// HPStatistic stat =  allStatesUCTStatistic(params, its, multisample, n, d);
@@ -446,6 +492,20 @@ int main() {
 	//// Output to file
 	//pointsAndValueToFile("../outputs/pointOutput.txt", points_and_values);
 #pragma endregion PointOutput
+
+#pragma region Experimental
+	// // Generate Faure points
+	// FaurePointSet pointSet(d, n);
+	// pointSet.generate();
+	// Grid grid(pointSet);
+	// GridStateExactWithK<3u> gridState(&grid);
+	// std::mt19937 mt(3);
+	// UCBHyperparameters params(0.01);
+	// TreeMCTSUCB1Avg<GridStateExactWithK<3u>, kAction> mctsgrid(&pointSet, gridState, its * d * 3, mt, params);
+	// mctsgrid.run(its);
+	// std::cout << mctsgrid.maxValue() << std::endl;
+
+#pragma endregion Experimental
 
 	//Grid grid(pointSet);
 	//SampleGridState gridState(&grid);

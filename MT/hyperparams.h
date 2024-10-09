@@ -164,7 +164,7 @@ SingleHPStatistic treeSingleSearchSequenceInput(UCBHyperparameters params, unsig
 			Grid grid(pointSet);
 			State gridState(&grid);
 			std::mt19937 mt(i);
-			UCBClass mctsgrid(&pointSet, gridState, its * pointSet.d * 3, mt, params);
+			UCBClass mctsgrid(&pointSet, gridState, its * 100 * 3, mt, params);
 			mctsgrid.run(its);
 #pragma omp critical
 			statistic.addValue(mctsgrid.maxValue());
@@ -742,3 +742,57 @@ HPStatistic SeparatedCompare(std::vector<UCBHyperparameters>  params, unsigned i
 	}
 	return statistic;
 };
+
+HPStatistic kCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
+	HPStatistic statistic;
+	for (auto& p : params) {
+			statistic.addSingle(
+				treeSingleSearchGrid<GridStateExact, TreeMCTSUCB1Avg<GridStateExact, Action>>(p, its, multiplicity, n, d, "Exact")
+			);
+			statistic.addSingle(
+                treeSingleSearchGrid<GridStateExactWithK<2>, TreeMCTSUCB1Avg<GridStateExactWithK<2>, kAction>>(p, its, multiplicity, n, d, "Exact With k=2")
+            );
+			statistic.addSingle(
+                treeSingleSearchGrid<GridStateExactWithK<3>, TreeMCTSUCB1Avg<GridStateExactWithK<3>, kAction>>(p, its, multiplicity, n, d, "Exact With k=3")
+            );
+		}
+	return statistic;
+}
+
+HPStatistic kImprovedCompare(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, unsigned int n, unsigned int d) {
+	HPStatistic statistic;
+	for (auto& p : params) {
+			statistic.addSingle(
+				treeSingleSearchGrid<GridStateExact, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity, n, d, "Exact")
+			);
+			statistic.addSingle(
+                treeSingleSearchGrid<GridStateExactWithK<2>, TreeMCTSUCB1Avg<GridStateExactAndImprovedWithK<2>, kAction>>(p, its, multiplicity, n, d, "Exact With k=2")
+            );
+			statistic.addSingle(
+                treeSingleSearchGrid<GridStateExactWithK<3>, TreeMCTSUCB1Avg<GridStateExactAndImprovedWithK<3>, kAction>>(p, its, multiplicity, n, d, "Exact With k=3")
+            );
+		}
+	return statistic;
+}
+
+
+
+HPStatistic kImprovedCompareAnonymous(std::vector<UCBHyperparameters>  params, unsigned int its, unsigned int multiplicity, AnonymousPointSet& pointset) {
+	HPStatistic statistic;
+	for (auto& p : params) {
+			statistic.addSingle(
+				treeSingleSearchSequenceInput<GridStateExact, TreeMCTSUCB1Avg<GridStateExactAndImprovedSplit, Action>>(p, its, multiplicity,pointset, "Exact")
+			);
+			std::cout << "Exact done" << std::endl;
+			statistic.addSingle(
+                treeSingleSearchSequenceInput<GridStateExactWithK<2>, TreeMCTSUCB1Avg<GridStateExactAndImprovedWithK<2>, kAction>>(p, its, multiplicity, pointset, "Exact With k=2")
+            );
+			std::cout << "Exact With k=2 done" << std::endl;
+            
+			statistic.addSingle(
+                treeSingleSearchSequenceInput<GridStateExactWithK<3>, TreeMCTSUCB1Avg<GridStateExactAndImprovedWithK<3>, kAction>>(p, its, multiplicity, pointset, "Exact With k=3")
+            );
+			std::cout << "Exact With k=3 done" << std::endl;
+		}
+	return statistic;
+}
