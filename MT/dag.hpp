@@ -3,6 +3,7 @@
 // Put a template over the State type and the action type
 #include <unordered_map>
 #include <map>
+#include "states.hpp"
 
 template <class State, class Action>
 struct Package
