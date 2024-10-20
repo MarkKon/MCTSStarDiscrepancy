@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "mcts.h"
+#include "mcts.hpp"
 
 struct SingleHPStatistic {
 	std::string algorithm_name;

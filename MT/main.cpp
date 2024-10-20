@@ -1,6 +1,6 @@
-#include "mcts.h"
-#include "hyperparams.h"
-#include "point_set.h"
+#include "mcts.hpp"
+#include "hyperparams.hpp"
+#include "point_set.hpp"
 #include <chrono>
 #include <fstream> // Include the necessary header for std::ofstream
 

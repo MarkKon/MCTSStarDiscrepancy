@@ -10,7 +10,7 @@
 #include <map>
 #include <iostream>
 #include <random>
-#include "point_set.h"
+#include "point_set.hpp"
 
 
 class Action {

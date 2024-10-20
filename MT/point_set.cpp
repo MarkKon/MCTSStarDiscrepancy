@@ -1,4 +1,4 @@
-#include "point_set.h"
+#include "point_set.hpp"
 
 double PointSet::discrepancy(const std::vector<double>& point) {
     unsigned int numPointsInHyperrectangle = 0;

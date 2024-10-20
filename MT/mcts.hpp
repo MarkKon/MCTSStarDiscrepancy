@@ -11,9 +11,9 @@
 #include <map>
 #include <iostream>
 #include <random>
-#include "point_set.h"
-#include "dag.h"
-#include "states.h"
+#include "point_set.hpp"
+#include "dag.hpp"
+#include "states.hpp"
 
 struct UCBHyperparameters {
 	double c;
